@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import '../models/models.dart';
 import '../services/api_service.dart';
+import '../services/update_service.dart';
 
 enum AppTab { upload, settings }
 
@@ -79,6 +80,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> init() async {
+    if (await UpdateService.applyUpdateIfAvailable()) return;
     await _startBundledBackend();
     await checkBackendConnection();
     if (_backendConnected) {
