@@ -1,0 +1,29 @@
+[project]
+name = "auto-money-doc-make"
+version = "0.1.0"
+description = "School purchase approval document automation backend"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.116.0",
+    "google-genai>=1.20.0",
+    "openpyxl>=3.1.5",
+    "pydantic>=2.11.0",
+    "python-multipart>=0.0.20",
+    "uvicorn>=0.35.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.0",
+]
+
+[build-system]
+requires = ["setuptools>=70.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["backend"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["backend"]

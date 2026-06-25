@@ -1,0 +1,1 @@
+"""Quotation extraction domain package."""

@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+outputs/
+.dart_tool/
+build/
+release/
+apps/flutter_ui/.dart_tool/
+apps/flutter_ui/build/
+apps/flutter_ui/windows/flutter/ephemeral/

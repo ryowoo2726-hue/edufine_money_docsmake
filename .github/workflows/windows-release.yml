@@ -1,0 +1,69 @@
+name: Windows Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install . pyinstaller pytest
+
+      - name: Test backend
+        run: python -m pytest
+
+      - name: Test Flutter
+        working-directory: apps/flutter_ui
+        run: flutter test
+
+      - name: Build backend exe
+        run: >
+          pyinstaller
+          --clean
+          --noconfirm
+          --onefile
+          --noconsole
+          --name auto_money_doc_api
+          --paths backend
+          --distpath release/backend
+          --workpath build/pyinstaller
+          --specpath build/pyinstaller
+          backend/run_api.py
+
+      - name: Build Flutter app
+        working-directory: apps/flutter_ui
+        run: flutter build windows --release
+
+      - name: Stage app
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release/AutoMoneyDocMake/backend | Out-Null
+          Copy-Item -Recurse -Force apps/flutter_ui/build/windows/x64/runner/Release/* release/AutoMoneyDocMake/
+          Copy-Item -Force release/backend/auto_money_doc_api.exe release/AutoMoneyDocMake/backend/auto_money_doc_api.exe
+
+      - name: Zip app
+        shell: pwsh
+        run: Compress-Archive -Path release/AutoMoneyDocMake/* -DestinationPath AutoMoneyDocMake-windows-x64.zip -Force
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: AutoMoneyDocMake-windows-x64.zip
