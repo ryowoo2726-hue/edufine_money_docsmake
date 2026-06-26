@@ -7,5 +7,7 @@ def test_prompt_contains_builtin_and_custom_site_rules():
     assert "First identify the purchase site" in prompt
     assert "[Gmarket]" in prompt
     assert "one line" in prompt
+    assert "배송비" in prompt
+    assert "total shipping fee" in prompt
     assert "[User configured rules]" in prompt
     assert "11번가" in prompt

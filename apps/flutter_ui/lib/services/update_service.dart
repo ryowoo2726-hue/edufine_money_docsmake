@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 
-const appVersion = '0.1.1';
+const appVersion = '0.1.2';
 const _latestReleaseApi =
     'https://api.github.com/repos/ryowoo2726-hue/edufine_money_docsmake/releases/latest';
 
