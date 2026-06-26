@@ -98,11 +98,7 @@ class AppState extends ChangeNotifier {
     }
 
     try {
-      _backendProcess = await Process.start(
-        backendExe.path,
-        const [],
-        mode: ProcessStartMode.detached,
-      );
+      _backendProcess = await Process.start(backendExe.path, const []);
       await Future<void>.delayed(const Duration(milliseconds: 500));
     } catch (_) {
       // In debug mode the backend is usually started separately.
@@ -311,7 +307,15 @@ class AppState extends ChangeNotifier {
   @override
   void dispose() {
     _progressTimer?.cancel();
-    _backendProcess?.kill();
+    _stopBundledBackend();
     super.dispose();
+  }
+
+  void _stopBundledBackend() {
+    final backendPid = _backendProcess?.pid;
+    _backendProcess?.kill();
+    if (backendPid != null && Platform.isWindows) {
+      Process.run('taskkill', ['/PID', '$backendPid', '/T', '/F']);
+    }
   }
 }

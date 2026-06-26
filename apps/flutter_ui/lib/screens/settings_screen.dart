@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../providers/app_state.dart';
+import '../services/update_service.dart';
 import '../services/windows_dialogs.dart';
 import '../theme/app_theme.dart';
 
@@ -23,6 +24,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _obscureApiKey = true;
   bool _isSaving = false;
   bool _isSavedSuccess = false;
+  bool _isCheckingVersion = false;
+  String _latestVersionText = '';
 
   @override
   void initState() {
@@ -140,6 +143,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _checkLatestVersion() async {
+    setState(() {
+      _isCheckingVersion = true;
+      _latestVersionText = '';
+    });
+
+    final info = await UpdateService.checkLatest();
+
+    setState(() {
+      _isCheckingVersion = false;
+      if (info == null) {
+        _latestVersionText = '최신 버전을 확인하지 못했습니다.';
+      } else if (info.updateAvailable) {
+        _latestVersionText = '최신 버전 ${info.latestVersion} 업데이트 가능';
+      } else {
+        _latestVersionText = '현재 최신 버전입니다.';
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -223,6 +246,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      '현재 버전 $appVersion',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textMain,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (_latestVersionText.isNotEmpty) ...[
+                    Text(
+                      _latestVersionText,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textMuted,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  OutlinedButton.icon(
+                    onPressed: _isCheckingVersion ? null : _checkLatestVersion,
+                    icon: _isCheckingVersion
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.system_update, size: 16),
+                    label: const Text('최신 버전 확인'),
                   ),
                 ],
               ),

@@ -4,11 +4,38 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 
-const appVersion = '0.1.2';
+const appVersion = '0.1.3';
 const _latestReleaseApi =
     'https://api.github.com/repos/ryowoo2726-hue/edufine_money_docsmake/releases/latest';
 
+class UpdateInfo {
+  final String latestVersion;
+  final bool updateAvailable;
+
+  const UpdateInfo({
+    required this.latestVersion,
+    required this.updateAvailable,
+  });
+}
+
 class UpdateService {
+  static Future<UpdateInfo?> checkLatest() async {
+    if (!Platform.isWindows) return null;
+
+    try {
+      final release = await _getJson(_latestReleaseApi);
+      final tag = (release['tag_name'] ?? '').toString();
+      if (tag.isEmpty) return null;
+
+      return UpdateInfo(
+        latestVersion: tag,
+        updateAvailable: compareVersions(tag, appVersion) > 0,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<bool> applyUpdateIfAvailable() async {
     if (!kReleaseMode || !Platform.isWindows) return false;
 
